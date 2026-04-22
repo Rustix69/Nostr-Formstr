@@ -1,11 +1,13 @@
-import { OllamaModel } from "../../services/ollamaService";
+export interface ModelSelectorModel {
+  name: string;
+}
 
 export interface ModelSelectorProps {
-    model: string | undefined;
-    setModel: (model: string) => void;
-    availableModels: OllamaModel[];
-    fetching: boolean;
-    disabled: boolean;
-    style?: React.CSSProperties;
-    placeholder?: string;
+  model: string | undefined;
+  setModel: (model: string) => void;
+  availableModels: ModelSelectorModel[];
+  fetching: boolean;
+  disabled: boolean;
+  style?: React.CSSProperties;
+  placeholder?: string;
 }

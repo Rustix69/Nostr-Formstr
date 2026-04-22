@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 export const LOCAL_STORAGE_KEYS = {
   LOCAL_FORMS: "formstr:forms",
   LOCAL_FORMS_ENCRYPTED: "formstr:forms-encrypted",
@@ -10,6 +8,8 @@ export const LOCAL_STORAGE_KEYS = {
   SUBMISSIONS: "formstr:submissions",
   PROFILE: "formstr:profile",
   OLLAMA_CONFIG: "formstr:ollama_config",
+  LLM_RUNNER_CONFIG: "formstr:llm_runner_config",
+  LLM_RUNNER_CACHE: "formstr:llm_runner_cache",
   APP_LOCALE: "formstr:locale",
 };
 
@@ -20,35 +20,33 @@ export interface LocalFormsMeta {
 }
 
 export function getItem<T>(key: string, { parseAsJson = true } = {}): T | null {
-  let value = localStorage.getItem(key);
-  if (value === null) {
-    return value;
-  }
-  if (parseAsJson) {
-    try {
-      value = JSON.parse(value);
-    } catch (e) {
-      value = null;
-      localStorage.removeItem(key);
-    }
+  const storedValue = localStorage.getItem(key);
+  if (storedValue === null) {
+    return null;
   }
 
-  return value as T;
+  if (!parseAsJson) {
+    return storedValue as T;
+  }
+
+  try {
+    return JSON.parse(storedValue) as T;
+  } catch {
+    localStorage.removeItem(key);
+    return null;
+  }
 }
 
-export const setItem = (
+export const setItem = <T>(
   key: string,
-  value: any,
-  { parseAsJson = true } = {}
+  value: T,
+  { parseAsJson = true }: { parseAsJson?: boolean } = {},
 ) => {
-  let valueToBeStored = value;
-  if (parseAsJson) {
-    valueToBeStored = JSON.stringify(valueToBeStored);
-  }
+  const valueToBeStored = parseAsJson ? JSON.stringify(value) : String(value);
   try {
     localStorage.setItem(key, valueToBeStored);
     window.dispatchEvent(new Event("storage"));
-  } catch (e) {
-    console.log("Error in setItem: ", e);
+  } catch (error) {
+    console.log("Error in setItem: ", error);
   }
 };
